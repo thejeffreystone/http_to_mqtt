@@ -56,9 +56,8 @@ app.post('/post/', function(req, res) {
            req.connection.remoteAddress;
   if (!auth_key || req.body['key'] != auth_key) {
     //console.log('Request is not authorized.');
-    src_key = req.body['key'];
-    src_ip = ip;
-    winston.log('warn', 'Request is not authorized %j', {key: src_key, ip: src_ip}, {});
+    message = 'Request is not authorized. key=' + req.body['key'] + ',ip=' +ip;
+    winston.log('warn', message);
     res.send();
     return;
   }
