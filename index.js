@@ -1,9 +1,11 @@
+var dotenv = require('dotenv');
+dotenv.load();
 var auth_key = process.env.AUTH_KEY || '';
 var mqtt_host = process.env.MQTT_HOST || '';
 var mqtt_user = process.env.MQTT_USER || '';
 var mqtt_pass = process.env.MQTT_PASS || '';
 var http_port = process.env.PORT || 5000;
-var debug_mode = process.env.DEBUG_MODE || false;
+var debug_mode = process.env.DEBUG_MODE || true;
 var keep_alive_topic = process.env.KEEP_ALIVE_TOPIC || 'keep_alive';
 var keep_alive_message = process.env.KEEP_ALIVE_MESSAGE || 'keep_alive';
 
@@ -19,7 +21,7 @@ function logRequest(req) {
   var message = 'Received request [' + req.originalUrl + 
               '] from [' + ip + ']';
   if (debug_mode) {
-    message += ' with payload [' + JSON.stringify(req.body) + ']';
+    message += ' with payload [' + JSON.stringify(req.body) + '] /' + mqtt_user+'@'+mqtt_host;
   } else {
     message += '.';
   }
@@ -27,7 +29,7 @@ function logRequest(req) {
 }
 
 var client  = mqtt.connect(mqtt_host, {
-  clientId: 'test',
+  clientId: 'httpmqtt',
   username: mqtt_user,
   password: mqtt_pass
 });
@@ -38,7 +40,7 @@ app.use(bodyParser.json());
 app.get('/keep_alive/', function(req, res) {
   logRequest(req);
   client.publish(keep_alive_topic, keep_alive_message);
-  res.send('ok');
+  res.send('ok\n');
 });
 
 app.post('/post/', function(req, res) {
@@ -51,9 +53,9 @@ app.post('/post/', function(req, res) {
   
   if (req.body['topic']) {
     client.publish(req.body['topic'], req.body['message']);
-    res.send('ok');
+    res.send('ok\n');
   } else {
-    res.send('error');
+    res.send('error\n');
   }
 });
 

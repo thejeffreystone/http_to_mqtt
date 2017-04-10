@@ -8,18 +8,19 @@
   },
   "dependencies": {
     "body-parser": "^1.17.1",
+    "dotenv": "^4.0.0",
     "express": "4.13.3",
     "mqtt": "^2.5.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/petkov/http_to_mqtt.git"
+    "url": "git+https://github.com/thejeffreystone/http_to_mqtt.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/petkov/http_to_mqtt/issues"
+    "url": "https://github.com/thejeffreystone/http_to_mqtt.git/issues"
   },
-  "homepage": "https://github.com/petkov/http_to_mqtt#readme"
+  "homepage": "https://github.com/thejeffreystone/http_to_mqtt.git#readme"
 }
