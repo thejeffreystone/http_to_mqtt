@@ -52,6 +52,8 @@ app.get('/keep_alive/', function(req, res) {
 
 app.post('/post/', function(req, res) {
   logRequest(req);
+  var ip = req.headers['x-forwarded-for'] ||
+           req.connection.remoteAddress;
   if (!auth_key || req.body['key'] != auth_key) {
     //console.log('Request is not authorized.');
     message = 'Request is not authorized - key=' + req.body['key']',ip=' +ip;
