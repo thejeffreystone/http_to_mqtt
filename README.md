@@ -1,58 +1,55 @@
 # HTTP to MQTT bridge
 
-The idea of creating HTTP to MQTT bridge appeared when I was trying to integrate Google Assistant with my Home Assistant after watching [BRUH Automation](https://youtu.be/087tQ7Ly7f4?t=265) video. Right now there is no MQTT service available in [IFTTT](https://ifttt.com/about). Existing integration solution uses [Maker Webhooks](https://ifttt.com/maker_webhooks) which requires that your HA is publically accessible, which I think brings some security concerns or simply not always possible to set up.
+I needed a solution that connected IFTTT to Home Assistant and came across [http_to_mqtt](https://github.com/petkov/http_to_mqtt)
 
-The HTTP to MQTT bridge should feel that gap. The idea is to receive signals using HTTP requests and transfer them to your MQTT broker, which is connected to HA. The HTTP to MQTT bridge is written using Node JS with [Express](https://expressjs.com/) for HTTP server and [MQTT.js](https://www.npmjs.com/package/mqtt) client.
+I wanted to host it locally along with my MQTT server so I made some modifications. If you want host this at [Heroku: Cloud Application Platform](https://www.heroku.com/home) then I suggest grabbing [http_to_mqtt](https://github.com/petkov/http_to_mqtt), otherwise feel free to use mine. I have only made some modifications to .env variables and how status is output to the console if testing via curl.
 
-The app could be hosted on any Node JS hosting. I prefer [Heroku: Cloud Application Platform](https://www.heroku.com/home) for its simplicity.  
+[@petkov](https://github.com/petkov) wrote the [HTTP to MQTT](http_to_mqtt](https://github.com/petkov/http_to_mqtt) bridge using Node JS with [Express](https://expressjs.com/) for HTTP server and [MQTT.js](https://www.npmjs.com/package/mqtt) client and could be hosted on [Heroku: Cloud Application Platform](https://www.heroku.com/home).  
 
-## Bringing pieces together
+I preferred to host it locally.  
+
+## The Ingredients
 
 1. Configure Home Assistant [MQTT trigger](https://home-assistant.io/docs/automation/trigger/#mqtt-trigger).
-1. Configure [CloudMQTT](https://www.cloudmqtt.com/). Here is a great video tutorial on how to do that: https://www.youtube.com/watch?v=VaWdvVVYU3A
-1. [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/petkov/http_to_mqtt) HTTP to MQTT bridge app.
-1. Add below (Config Variables)(https://devcenter.heroku.com/articles/config-vars#setting-up-config-vars-for-a-deployed-application) to your Heroku app.
-   * AUTH_KEY - can be any string eg.: 912ec803b2ce49e4a541068d495ab570.
-   * MQTT_HOST - the host of your MQTT broker (eg.: mqtts://k99.cloudmqtt.com:21234).
+1. Clone this repo to your host
+1. Update the env variables in .env-sample and rename to .env
+   * AUTH_KEY - can be any string eg.: makeitreallyrandom.
+   * MQTT_HOST - the host of your MQTT broker (eg.: mqtt://<host>:<port>).
    * MQTT_USER
    * MQTT_PASS
 1. Create IFTTT applet the same way as described in [BRUH Automation](https://youtu.be/087tQ7Ly7f4?t=265) video.
 1. Configure [Maker Webhooks](https://ifttt.com/maker_webhooks) service with below parameters.
-   * URL: https://<app_name>.herokuapp.com/post/
+   * URL: https://<host>:<port>/post/
    * Method: POST
    * Content Type: application/json
    * Body: {"topic":"<mqtt_topic>","message":"<mqtt_message>","key":"<AUTH_KEY>"}
-   
-## Subscribe to latest version
+1. Make sure to enable any required port forwarding.
 
-Additionally you can make Heroku to update HTTP to MQTT bridge app to the latest available version from GitHub repository automatically. To do this follow the instruction on [Heroku help page](https://devcenter.heroku.com/articles/github-integration#automatic-deploys).
+## Test HTTP to MQTT Bridge
 
-## Improve response time
+Before attempting to connect IFTTT to your new Bridge I suggest testing to make sure your bridge is . You can use curl for this.
 
-After 30 minutes of inactivity Heroku will put your app into sleep mode. This will result in ~10 seconds response time. To prevent Heroku from putting your app into sleep mode ping it every 10 minutes or so. You can do that by sending regular HTTP GET request to http://your_app/keep_alive/. But be carefull. Heroku free quota is 550 hours per month. Without sleeping your app will be allowed to run only 22 days a month. Additionally keep_alive method will send a simple MQTT message to prevent the broker from sleeping as well. The topic and message can be configured using Heroku environment variables KEEP_ALIVE_TOPIC and KEEP_ALIVE_MESSAGE and both are set to “keep_alive” by default.
+For example:
 
-You can even configure HA to ping HTTP to MQTT bridge every 10 minutes during daytime. Below is an example of how to do that:
-
-```yaml
-rest_command:
-  http_to_mqtt_keep_alive:
-    url: https://<your_app_address>/keep_alive/
-    method: get
-
-automation:
-  alias: HTTP to MQTT keep alive
-  trigger:
-    platform: time
-    minutes: '/10'
-    seconds: 00
-  condition:
-    condition: time
-    after: '7:30:00'
-    before: '23:59:59'
-  action:
-    service: rest_command.http_to_mqtt_keep_alive
 ```
+curl -X POST -H "Content-Type: application/json" -d '{"topic":"testing/dev/message","message":"Working!","key":"makeitreallyrandom"}' http://<host>:5000/post/
+```
+Then just subscribe to the topic you just sent your test message to:
+
+```
+mosquitto_sub -d -h <mqtt_server> -p <port> -t 'testing/#' -u <mqtt_user> -P <mqtt_pass>
+```
+
+Once you validated your bridge is working then you should be good to go on setting up your [Maker Webhooks](https://ifttt.com/maker_webhooks)
+
+## Todo
+
+* Log to a file so data can be splunked.
 
 ## Thanks
 
-Special thanks to Ben from [BRUH Automation](https://www.youtube.com/channel/UCLecVrux63S6aYiErxdiy4w/featured) for awesome tutorials which inspired me to do this project.
+I would not have been able to do this without inspiration and the work of others.
+
+First, [@petkov](https://github.com/petkov) who did the initial work to create this HTTP to MQTT bridge. I am using his blood, sweat, and tears for my own benefit and do so with the greatest of thanks.
+
+Now, I wouldn't even been working on this project if it wasn't for [Home Assistant](https://home-assistant.io/). Seriously, if you are not using this project in your Home Automation you are doing it wrong. And of course, to Ben from [BRUH Automation](http://www.bruhautomation.com) who I first came across when looking for Home Assistant configs to ~~copy~~ use for inspiration. Ben also does some awesome video tutorials on both Home Assistant and making your own IoT devices cheap. Check out Ben's [youtube](https://www.youtube.com/c/bruhautomation1).  
