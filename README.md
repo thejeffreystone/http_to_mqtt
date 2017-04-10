@@ -44,7 +44,7 @@ Once you validated your bridge is working then you should be good to go on setti
 
 ## Todo
 
-* Log to a file so data can be splunked.
+* ~~Log to a file so data can be splunked.~~
 
 ## Thanks
 

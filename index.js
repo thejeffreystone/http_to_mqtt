@@ -1,5 +1,11 @@
 var dotenv = require('dotenv');
 dotenv.load();
+var winston = require('winston');
+winston.configure({
+    transports: [
+      new (winston.transports.File)({ filename: '/srv/ha/logs/http_to_mqtt.log' })
+    ]
+  });
 var auth_key = process.env.AUTH_KEY || '';
 var mqtt_host = process.env.MQTT_HOST || '';
 var mqtt_user = process.env.MQTT_USER || '';
@@ -21,11 +27,12 @@ function logRequest(req) {
   var message = 'Received request [' + req.originalUrl + 
               '] from [' + ip + ']';
   if (debug_mode) {
-    message += ' with payload [' + JSON.stringify(req.body) + '] /' + mqtt_user+'@'+mqtt_host;
+    message += ' with payload [' + JSON.stringify(req.body) + '] /';
   } else {
     message += '.';
   }
   console.log(message);
+  winston.log('info',message)
 }
 
 var client  = mqtt.connect(mqtt_host, {
