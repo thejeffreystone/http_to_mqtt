@@ -24,15 +24,15 @@ var app = express();
 function logRequest(req) {
   var ip = req.headers['x-forwarded-for'] ||
            req.connection.remoteAddress;
-  var message = 'Received request [' + req.originalUrl + 
+  var message = 'Received request [' + req.originalUrl +
               '] from [' + ip + ']';
   if (debug_mode) {
     message += ' with payload [' + JSON.stringify(req.body) + '] /';
   } else {
     message += '.';
   }
-  console.log(message);
-  winston.log('info',message)
+  //console.log(message);
+  winston.log('info',message);
 }
 
 var client  = mqtt.connect(mqtt_host, {
@@ -53,11 +53,13 @@ app.get('/keep_alive/', function(req, res) {
 app.post('/post/', function(req, res) {
   logRequest(req);
   if (!auth_key || req.body['key'] != auth_key) {
-    console.log('Request is not authorized.');
+    //console.log('Request is not authorized.');
+    message = 'Request is not authorized - key sent = ' + req.body['key'];
+    winston.log('warn', message);
     res.send();
     return;
   }
-  
+
   if (req.body['topic']) {
     client.publish(req.body['topic'], req.body['message']);
     res.send('ok\n');
@@ -67,5 +69,6 @@ app.post('/post/', function(req, res) {
 });
 
 app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
+  //console.log('Node app is running on port', app.get('port'));
+  winston.log('info', 'Node app is running on port' + app.get('port'));
 });
