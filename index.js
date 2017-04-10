@@ -54,7 +54,7 @@ app.post('/post/', function(req, res) {
   logRequest(req);
   if (!auth_key || req.body['key'] != auth_key) {
     //console.log('Request is not authorized.');
-    message = 'Request is not authorized - key sent = ' + req.body['key'];
+    message = 'Request is not authorized - key=' + req.body['key']',ip=' +ip;
     winston.log('warn', message);
     res.send();
     return;
@@ -70,5 +70,5 @@ app.post('/post/', function(req, res) {
 
 app.listen(app.get('port'), function() {
   //console.log('Node app is running on port', app.get('port'));
-  winston.log('info', 'Node app is running on port' + app.get('port'));
+  winston.log('info', 'Node app is running on port ' + app.get('port'));
 });
