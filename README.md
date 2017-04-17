@@ -4,7 +4,7 @@ I needed a solution that connected IFTTT to Home Assistant and came across [http
 
 I wanted to host it locally along with my MQTT server so I made some modifications. If you want host this at [Heroku: Cloud Application Platform](https://www.heroku.com/home) then I suggest grabbing [http_to_mqtt](https://github.com/petkov/http_to_mqtt), otherwise feel free to use mine. I have only made some modifications to .env variables and how status is output to the console if testing via curl.
 
-[@petkov](https://github.com/petkov) wrote the [HTTP to MQTT](http_to_mqtt](https://github.com/petkov/http_to_mqtt) bridge using Node JS with [Express](https://expressjs.com/) for HTTP server and [MQTT.js](https://www.npmjs.com/package/mqtt) client and could be hosted on [Heroku: Cloud Application Platform](https://www.heroku.com/home).  
+[@petkov](https://github.com/petkov) wrote the [HTTP to MQTT](https://github.com/petkov/http_to_mqtt) bridge using Node JS with [Express](https://expressjs.com/) for HTTP server and [MQTT.js](https://www.npmjs.com/package/mqtt) client and could be hosted on [Heroku: Cloud Application Platform](https://www.heroku.com/home).  
 
 I preferred to host it locally.  
 
