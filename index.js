@@ -63,7 +63,7 @@ app.post('/post/', function(req, res) {
   }
 
   if (req.body['topic']) {
-    client.publish(req.body['topic'], req.body['message']);
+    client.publish(req.body['topic'], req.body['message'], {retain: true});
     res.send('ok\n');
   } else {
     res.send('error\n');
